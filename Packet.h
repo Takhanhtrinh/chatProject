@@ -57,7 +57,7 @@ int getPacketSize(const byte& type, void* data) {
     }
     case AN_USER_JOIN_A_ROOM: {
       int nameLength = *(int*)data;
-      return 1 + (32 * 32) * 4 + nameLength;
+      return 1 + (32 * 32) * 4 + nameLength + 4;
     }
     default:
 #ifdef DEBUG
@@ -248,9 +248,7 @@ class SendDataToUsersInARoomPacket : public Packet {
     dataSize = buffer.getInt();
     userSize = buffer.getInt();
     users.reserve(userSize);
-    for (int i = 0; i < dataSize; i++) {
-      sdata = buffer.getString(dataSize);
-    }
+    sdata = buffer.getString(dataSize);
     for (unsigned int i = 0; i < userSize; i++) {
       users.push_back(buffer.getInt());
     }

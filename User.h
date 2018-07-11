@@ -1,11 +1,10 @@
-#ifndef DEBUG
-#define DEBUG
+#ifndef USER_H
+#define USER_H
 #include <uWS/uWS.h>
 #include <map>
 #include <string>
 #include <vector>
 #include "Config.h"
-
 #define ROOM_IS_NULLPTR -1
 #define ROOM_ALREADY_EXIST -2
 #define ADD_ROOM_SUCCESS 1

@@ -32,6 +32,7 @@ uint8_t User::setSendUsers(const unsigned int& roomId, const SendUsers& users) {
   if (find == m_rooms.end()) return USER_NOT_IN_THIS_ROOM;
 
   SendUsers& u = sendUsers.at(roomId);
+  u.clear();
   for (auto it = users.begin(); it != users.end(); it++) {
     // check if the users are belong to this room
     User* user = it->second;

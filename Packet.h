@@ -13,6 +13,7 @@ const byte SEND_DATA_TO_USERS_IN_A_ROOM_PACKET = 'y';
 const byte LEAVE_A_ROOM_PACKET = 'u';
 const byte AN_USER_LEAVE_A_ROOM_PACKET = 'i';
 const byte AN_USER_JOIN_A_ROOM = 'o';
+const byte NEW_MESSAGE_FROM_USER = 'p';
 
 int getPacketSize(const byte& type, void* data) {
   switch (type) {
@@ -58,6 +59,12 @@ int getPacketSize(const byte& type, void* data) {
     case AN_USER_JOIN_A_ROOM: {
       int nameLength = *(int*)data;
       return 1 + (32 * 32) * 4 + nameLength + 4;
+    }
+    case NEW_MESSAGE_FROM_USER: {
+      size_t* array = (size_t*)data;
+      size_t msgLen = array[0];
+      // packettype(1) + msglen(4) + from(4) + data
+      return 1 + 4 + 4 + 4 + msgLen;
     }
     default:
 #ifdef DEBUG
@@ -328,6 +335,42 @@ class AnUserLeaveARoom : public Packet {
   void derserialization() override {
     packetType = buffer.getByte();
     id = buffer.getInt();
+  }
+};
+class NewMsgFromUser : public Packet {
+ private:
+  std::string data;
+  unsigned int from;
+  unsigned int id;
+  unsigned int msgLen;
+
+ public:
+  NewMsgFromUser(const std::string& d, const unsigned int& f,
+                 const unsigned int& i)
+      : Packet(::getPacketSize(NEW_MESSAGE_FROM_USER, (size_t[]){d.size()}),
+               NEW_MESSAGE_FROM_USER),
+        data(d),
+        from(f),
+        id(i),
+        msgLen((int)d.size()) {}
+  NewMsgFromUser(byte* data, const int& size) : Packet(data, size) {}
+  const std::string& getData() const { return data; }
+  const unsigned int& getSendFrom() const { return from; }
+  const unsigned int& getMsgLen() const { return msgLen; }
+  const unsigned int& getRoomId() const { return id; }
+  void serialization() override {
+    buffer.putByte(packetType);
+    buffer.putInt(from);
+    buffer.putInt(id);
+    buffer.putInt(msgLen);
+    buffer.putString(data);
+  }
+  void derserialization() override {
+    packetType = buffer.getByte();
+    from = buffer.getInt();
+    id = buffer.getInt();
+    msgLen = buffer.getInt();
+    data = buffer.getString(msgLen);
   }
 };
 

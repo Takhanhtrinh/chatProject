@@ -27,6 +27,10 @@ const byte ROOM_EXIST = 1;
 const byte CREATE_ROOM_OK = 1;
 const byte CREATE_ROOM_FAILED = -1;
 
+inline byte getPacketType(const byte * data) {
+  return data[0];
+}
+
 inline int getPacketSize(const byte& type, void* data) {
   switch (type) {
     case CREATE_USER_PACKET: {
@@ -117,7 +121,7 @@ class Packet {
  public:
   Packet(const int& size, const byte& type)
       : buffer(size), packetType(type), m_size(size) {}
-  Packet(byte* data, const int& size) : buffer(data, size), m_size(size) {}
+  Packet(const byte* data, const int& size) : buffer(data, size), m_size(size) {}
   virtual void serialization() = 0;
   virtual void derserialization() = 0;
   int getPacketSize() const { return m_size; }
@@ -136,7 +140,7 @@ class CreateUserPacket : public Packet {
       : Packet(::getPacketSize(CREATE_USER_PACKET, (size_t[]){n.size()}),
                CREATE_USER_PACKET),
         name(n) {}
-  CreateUserPacket(byte* buffer, const int& size) : Packet(buffer, size) {}
+  CreateUserPacket(const byte* buffer, const int& size) : Packet(buffer, size) {}
   const std::string& getName() const { return name; }
   void serialization() override {
     buffer.putByte(packetType);

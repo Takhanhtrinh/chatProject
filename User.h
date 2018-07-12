@@ -23,6 +23,7 @@ class Room;
 class User {
  public:
   typedef std::map<unsigned int, User*> SendUsers;
+
  private:
   std::string name;
   std::vector<int> profileImage{1024};
@@ -32,16 +33,18 @@ class User {
   std::map<unsigned int, SendUsers> sendUsers;
 
  public:
-  User(const std::string& n, const unsigned int &i, uWS::WebSocket<uWS::SERVER>* w);
+  User(const std::string& n, const unsigned int& i,
+       uWS::WebSocket<uWS::SERVER>* w);
   void setProfileImage(const std::vector<int> v) { profileImage = v; }
   void sendMsg(byte* msg);
   const std::string& getName() const { return name; }
   const std::vector<int>& getProfileImage() { return profileImage; }
   const unsigned int& getId() const { return id; }
-  uint8_t joinARoom(const unsigned int& id,Room* room);
+  uint8_t joinARoom(const unsigned int& id, Room* room);
   uint8_t leaveARoom(const unsigned int& id);
   uint8_t setSendUsers(const unsigned int& roomId, const SendUsers& users);
-  uint8_t removeSendUsers(const unsigned int& userid, const unsigned int& roomId);
+  uint8_t removeSendUsers(const unsigned int& userid,
+                          const unsigned int& roomId);
   virtual ~User() {}
 };
 #endif

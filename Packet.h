@@ -1,9 +1,11 @@
 #ifndef PACKET_H
 #define PACKET_H
+#include <map>
 #include <string>
 #include <vector>
 #include "Buffer.h"
 #include "Config.h"
+#include "User.h"
 const byte CREATE_USER_PACKET = 'q';
 const byte CREATE_PROFILE_PICTURE = 'w';
 const byte CREATE_ROOM_PACKET = 'e';
@@ -11,11 +13,21 @@ const byte JOIN_A_ROOM_PACKET = 'r';
 const byte SEND_DATA_TO_EVERYONE_IN_A_ROOM_PACKET = 't';
 const byte SEND_DATA_TO_USERS_IN_A_ROOM_PACKET = 'y';
 const byte LEAVE_A_ROOM_PACKET = 'u';
+
+// server side
 const byte AN_USER_LEAVE_A_ROOM_PACKET = 'i';
 const byte AN_USER_JOIN_A_ROOM = 'o';
 const byte NEW_MESSAGE_FROM_USER = 'p';
+const byte JOIN_A_ROOM_RESPOND_PACKET = 'a';
+const byte CREATE_A_ROOM_RESPOND_PACKET = 's';
 
-int getPacketSize(const byte& type, void* data) {
+const byte ROOM_RESPOND_NOT_EXIST = -1;
+const byte ROOM_EXIST = 1;
+
+const byte CREATE_ROOM_OK = 1;
+const byte CREATE_ROOM_FAILED = -1;
+
+inline int getPacketSize(const byte& type, void* data) {
   switch (type) {
     case CREATE_USER_PACKET: {
       size_t* array = (size_t*)data;
@@ -35,7 +47,9 @@ int getPacketSize(const byte& type, void* data) {
     }
     case JOIN_A_ROOM_PACKET: {
       // 4 bytes for room id and 1 for packetType
-      return 5;
+      size_t* array = (size_t*)data;
+      size_t nameLegnth = array[0];
+      return 1 + nameLegnth;
     }
     case SEND_DATA_TO_EVERYONE_IN_A_ROOM_PACKET: {
       int* array = (int*)data;
@@ -65,6 +79,27 @@ int getPacketSize(const byte& type, void* data) {
       size_t msgLen = array[0];
       // packettype(1) + msglen(4) + from(4) + data
       return 1 + 4 + 4 + 4 + msgLen;
+    }
+    case JOIN_A_ROOM_RESPOND_PACKET: {
+      if (data == nullptr)
+        return 2;
+      else {
+        std::map<unsigned int, User*>* d = (std::map<unsigned int, User*>*)data;
+        int totalUsers = d->size();
+        // number of variable of int to store user name length
+        uint32_t totalByteToStoreVariableNameLength = totalUsers * 4;
+        uint32_t totalByteToStoreUserId = totalUsers * 4;
+        uint32_t totalStringLength = 0;
+        for (auto it = d->begin(); it != d->end(); it++) {
+          // find total string length
+          totalStringLength += it->second->getName().length();
+        }
+        return 1 + 4 + totalByteToStoreVariableNameLength +
+               totalByteToStoreUserId + totalStringLength;
+      }
+    }
+    case CREATE_A_ROOM_RESPOND_PACKET: {
+      return 2;
     }
     default:
 #ifdef DEBUG
@@ -161,37 +196,36 @@ class CreateARoomPacket : public Packet {
 };
 
 class JoinARoomPacket : public Packet {
-  unsigned int roomId;
+  std::string name;
 
  public:
-  JoinARoomPacket(const unsigned int& id)
-      : Packet(::getPacketSize(JOIN_A_ROOM_PACKET, nullptr),
+  JoinARoomPacket(const std::string& n)
+      : Packet(::getPacketSize(JOIN_A_ROOM_PACKET, (size_t[]){n.size()}),
                JOIN_A_ROOM_PACKET),
-        roomId(id) {}
+        name(n) {}
   JoinARoomPacket(byte* data, const int& size) : Packet(data, size) {}
-  const unsigned int& getRoomId() const { return roomId; }
-  void serialization() override {
+  const std::string& getName() const { return name; }
+  void serialization() {
     buffer.putByte(packetType);
-    buffer.putInt(roomId);
+    buffer.putString(name);
   }
-  void derserialization() override {
+  void derserialization() {
     packetType = buffer.getByte();
-    roomId = buffer.getInt();
+    name = buffer.getString(m_size - 1);
   }
 };
 class SendDataToEveryoneInARoomPacket : public Packet {
-  byte* data;
   std::string sData;
   int size;
   unsigned int roomNumber;
 
  public:
-  SendDataToEveryoneInARoomPacket(byte* d, const int& s,
+  SendDataToEveryoneInARoomPacket(const std::string& data, const int& s,
                                   const unsigned int& roomN)
       : Packet(
             ::getPacketSize(SEND_DATA_TO_EVERYONE_IN_A_ROOM_PACKET, (int[]){s}),
             SEND_DATA_TO_EVERYONE_IN_A_ROOM_PACKET),
-        data(d),
+        sData(data),
         size(s),
         roomNumber(roomN) {}
   SendDataToEveryoneInARoomPacket(byte* data, const int& size)
@@ -203,7 +237,6 @@ class SendDataToEveryoneInARoomPacket : public Packet {
     buffer.putByte(packetType);
     buffer.putInt(roomNumber);
     buffer.putInt(size);
-    sData = std::string((const char*)data);
     buffer.putString(sData);
   }
   void derserialization() override {
@@ -371,6 +404,93 @@ class NewMsgFromUser : public Packet {
     id = buffer.getInt();
     msgLen = buffer.getInt();
     data = buffer.getString(msgLen);
+  }
+};
+class JoinARoomRespondPacket : public Packet {
+ private:
+  uint8_t status;
+  std::map<unsigned int, User*>* users;
+  std::map<unsigned int, std::string> usersForDeserialization;
+  uint32_t totalUsers;
+
+ public:
+  JoinARoomRespondPacket(const uint8_t& s, std::map<unsigned int, User*>* u)
+      : Packet(::getPacketSize(JOIN_A_ROOM_RESPOND_PACKET, u),
+               JOIN_A_ROOM_RESPOND_PACKET),
+        status(s) {
+    users = u;
+    if (u != nullptr)
+      totalUsers = u->size();
+    else
+      totalUsers = 0;
+  }
+  JoinARoomRespondPacket(byte* data, const int& size) : Packet(data, size) {}
+  uint8_t getStatus() const { return status; }
+  const uint32_t& getTotalUsers() const { return totalUsers; }
+  const std::map<unsigned int, std::string>& getUsers() const {
+    return usersForDeserialization;
+  }
+
+  void serialization() override {
+    buffer.putByte(packetType);
+    if (status == ROOM_RESPOND_NOT_EXIST) {
+      buffer.putByte(status);
+      return;
+    }
+    buffer.putInt(totalUsers);
+    if (users != nullptr) {
+      for (auto it = users->begin(); it != users->end(); it++) {
+        // serialize id
+        buffer.putInt(it->first);
+        // serialize nameLength
+        buffer.putInt(it->second->getName().length());
+        // serialize name
+        buffer.putString(it->second->getName());
+      }
+    }
+  }
+  void derserialization() override {
+    packetType = buffer.getByte();
+    if (m_size == 2) {
+      status = buffer.getByte();
+      return;
+    }
+    // room exist
+    else {
+      // deserialize totalUsrs
+      totalUsers = buffer.getInt();
+
+      for (int i = 0; i < (int)totalUsers; i++) {
+        // deserialize user id
+        unsigned int id = buffer.getInt();
+        // deserialize nameLen
+        unsigned int nameLen = buffer.getInt();
+        // deserialize name
+        std::string name = buffer.getString(nameLen);
+        // push to container
+        usersForDeserialization[id] = name;
+      }
+    }
+  }
+};
+class CreateARoomRespondPacket : public Packet {
+ private:
+  byte status;
+
+ public:
+  CreateARoomRespondPacket(const byte& s)
+      : Packet(::getPacketSize(CREATE_A_ROOM_RESPOND_PACKET, nullptr),
+               CREATE_A_ROOM_RESPOND_PACKET),
+        status(s) {}
+  CreateARoomRespondPacket(byte * data, const int& size) : Packet(data,size) {}
+  const byte& getStatus() { return status; }
+  void serialization() override {
+    buffer.putByte(packetType);
+    buffer.putByte(status);
+  }
+  void derserialization() override {
+    packetType = buffer.getByte();
+    status = buffer.getByte();
   }
 };
 

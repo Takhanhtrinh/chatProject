@@ -59,7 +59,7 @@ class Buffer {
   int getPacketSize() const;
 
   ~Buffer() {
-    if (buffer != nullptr) delete buffer;
+    if (buffer != nullptr) delete[] buffer;
   }
 };
 

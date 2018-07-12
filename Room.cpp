@@ -1,5 +1,4 @@
 #include "Room.h"
-#include "User.h"
 
 Room ::Room(const std::string& roomName, const unsigned int& id)
     : room_tag(roomName), roomId(id) {}
@@ -7,6 +6,10 @@ Room ::Room(const std::string& roomName, const unsigned int& id)
 void Room::sendAll(byte* msg, const unsigned int& from) const {
   auto find = m_users.find(from);
   if (find == m_users.end()) {
+#ifdef DEBUG
+    printf("Room: sendAll the user doesn't exist in this room, userId: %d\n",
+           from);
+#endif
   } else {
     std::string data((const char*)msg);
     NewMsgFromUser* packet = new NewMsgFromUser(data, from, roomId);
@@ -32,6 +35,7 @@ uint8_t Room::userJoinRoom(const unsigned int& id, User* user) {
 
 uint8_t Room::userLeaveRoom(const unsigned int& id) {
   if (m_users.find(id) == m_users.end()) return USER_NOT_IN_THIS_ROOM;
+  m_users[id]->leaveARoom(roomId);
   m_users.erase(id);
   AnUserLeaveARoom* packet = new AnUserLeaveARoom(id);
   packet->serialization();
@@ -39,5 +43,34 @@ uint8_t Room::userLeaveRoom(const unsigned int& id) {
     it->second->sendMsg(packet->getBuffer());
   }
   delete packet;
+#ifdef DEBUG
+  printf("a userid: %d left this room: %d\n", id, roomId);
+#endif
   return REMOVE_USER_SUCCESS;
+}
+void Room::sendOnlyToUsers(byte* msg, const std::vector<unsigned int>& u,
+                           const unsigned int& sendFrom) const {
+  // check if this send from belong to this room
+  auto find = m_users.find(sendFrom);
+  // found it
+  if (find != m_users.end()) {
+    std::map<unsigned int, User*> cacheSendUsers;
+    for (int i = 0; i < u.size(); i++) {
+      // find these users need to send
+      unsigned int id = u[i];
+      auto it = m_users.find(id);
+      if (it != m_users.end()) {
+        cacheSendUsers[id] = it->second;
+      }
+    }
+    find->second->setSendUsers(roomId, cacheSendUsers);
+    for (auto it = cacheSendUsers.begin(); it != cacheSendUsers.end(); it++)
+      it->second->sendMsg(msg);
+  }
+  // not found
+  else {
+#ifdef DEBUG
+    printf("user with id: %d not in this room: %d\n", sendFrom, roomId);
+#endif
+  }
 }

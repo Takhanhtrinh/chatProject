@@ -11,10 +11,10 @@ Buffer::Buffer(int size)
 }
 Buffer::Buffer(const byte b[], int size)
     : limit(size), position(0), capacity(size), state(READING) {
-  buffer = new byte(capacity);
+  buffer = new byte[capacity];
   for (int i = 0; i < capacity; i++) buffer[i] = b[i];
 #ifdef DEBUG
-  std::cout << "size: " << capacity << std::endl;
+  std::cout << "buffer size: " << capacity << std::endl;
 #endif 
 }
 

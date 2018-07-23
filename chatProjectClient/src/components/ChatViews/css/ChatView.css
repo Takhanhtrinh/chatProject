@@ -1,0 +1,43 @@
+.ChatViewContainer {
+    background-color:#1E1E1E;
+    width: 100%;
+    overflow: scroll;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
+}
+.roomInfoContainer {
+    width: 100%;
+}
+.roomInfo {
+    background-color: #2A2A2A;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 5px;
+}
+.roomName {
+   color: #DDDDDD;
+    display: inline-block;
+    white-space: nowrap;
+    width: 80%;
+    overflow: scroll;
+    font-size: 12px;
+}
+.numberOfUsers {
+    color:#DDDDDD;
+    display: inline-block;
+    float:right;
+    overflow: hidden;
+    font-size: 10px;
+    
+}
+.removeRoom {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    float: right;
+    background-color:red;
+}

@@ -16,6 +16,7 @@ class Server {
   std::map<unsigned int, std::unique_ptr<Room> > m_rooms;
   std::map<unsigned int, std::unique_ptr<User> > m_users;
   std::set<std::string> username;
+  std::set<std::string> roomName;
 
   const unsigned int& getNextUserId();
   const unsigned int& getNextRoomId();

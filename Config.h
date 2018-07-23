@@ -8,4 +8,5 @@ union Float {
   float floatValue;
   int intValue;
 };
+const int MAX_ROOM_NAME = 255;
 #endif

@@ -1,0 +1,45 @@
+.RoomListContainer {
+    background-color: #2C2E2F;
+    color: #B4B3B6;
+    /* padding: 5px 15px; */
+}
+.RoomListContainer .roomList {
+    width:100%;
+    overflow-y:scroll;
+}
+.RoomListContainer .input-container {
+    height: 40px;
+    padding: 5px 15px;
+
+}
+.RoomListContainer .input-container input {
+    background-color: #3A3B3F;
+    color:#DDDDDD;
+    font-size: 14px;
+    height: 30px;
+    border: 0;
+}
+.RoomListContainer .input-container input ::placeholder {
+    color: #525458;
+    opacity: 1;
+}
+.RoomListContainer .input-container input ::-ms-input-placeholder{
+    color: #525458;
+}
+.RoomListContainer .userInfo {
+    height: 40px;
+}
+
+.RoomListContainer .roomList .roomContainer {
+    font-size: 14px;
+    padding: 5px 15px;
+    /* border-bottom: 1px solid black; */
+    overflow: hidden;
+    white-space: pre-wrap;      /* CSS3 */   
+    white-space: -moz-pre-wrap; /* Firefox */    
+    white-space: -pre-wrap;     /* Opera <7 */   
+    white-space: -o-pre-wrap;   /* Opera 7 */    
+    word-wrap: break-word;      /* IE */
+    
+
+}

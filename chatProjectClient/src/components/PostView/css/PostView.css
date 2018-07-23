@@ -1,0 +1,38 @@
+.PostViewContainer {
+    padding: 15px;
+}
+.PostViewContainer .profileImage {
+    width: 50px;
+    height: 50px;
+    background-color:red;
+    border-radius: 4px;
+    display: inline-block;
+}
+.PostViewContainer .inline {
+    display: inline-block;
+    vertical-align: top;
+    padding-left: 15px;
+    
+}
+.PostViewContainer .inline .name {
+    color:#DDDDDD;
+}
+.PostViewContainer .inline .time {
+    color: white;
+    font-size: 12px;
+}
+.PostViewContainer .message {
+    font-size: 15px;
+    margin-left: 65px;
+    color:#DDDDDD;
+    background-color:green;
+    overflow: hidden;
+    white-space: pre-wrap;      /* CSS3 */   
+    white-space: -moz-pre-wrap; /* Firefox */    
+    white-space: -pre-wrap;     /* Opera <7 */   
+    white-space: -o-pre-wrap;   /* Opera 7 */    
+    word-wrap: break-word;      /* IE */
+}
+.PostViewContainer .imagePost {
+    margin-left: 65px;
+}

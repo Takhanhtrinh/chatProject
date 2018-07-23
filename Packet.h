@@ -20,6 +20,7 @@ const byte AN_USER_JOIN_A_ROOM = 'o';
 const byte NEW_MESSAGE_FROM_USER = 'p';
 const byte JOIN_A_ROOM_RESPOND_PACKET = 'a';
 const byte CREATE_A_ROOM_RESPOND_PACKET = 's';
+const byte SERVER_ERROR_MSG = 'd';
 
 const byte ROOM_RESPOND_NOT_EXIST = -1;
 const byte ROOM_EXIST = 1;
@@ -27,9 +28,7 @@ const byte ROOM_EXIST = 1;
 const byte CREATE_ROOM_OK = 1;
 const byte CREATE_ROOM_FAILED = -1;
 
-inline byte getPacketType(const byte * data) {
-  return data[0];
-}
+inline byte getPacketType(const byte* data) { return data[0]; }
 
 inline int getPacketSize(const byte& type, void* data) {
   switch (type) {
@@ -105,6 +104,11 @@ inline int getPacketSize(const byte& type, void* data) {
     case CREATE_A_ROOM_RESPOND_PACKET: {
       return 2;
     }
+    case SERVER_ERROR_MSG: {
+      size_t* array = (size_t*)data;
+      size_t length = array[0];
+      return length + 1;
+    }
     default:
 #ifdef DEBUG
       printf("DEBUG getPacketSize this packet type doesn't exist %d\n", type);
@@ -121,7 +125,8 @@ class Packet {
  public:
   Packet(const int& size, const byte& type)
       : buffer(size), packetType(type), m_size(size) {}
-  Packet(const byte* data, const int& size) : buffer(data, size), m_size(size) {}
+  Packet(const byte* data, const int& size)
+      : buffer(data, size), m_size(size) {}
   virtual void serialization() = 0;
   virtual void derserialization() = 0;
   int getPacketSize() const { return m_size; }
@@ -140,7 +145,8 @@ class CreateUserPacket : public Packet {
       : Packet(::getPacketSize(CREATE_USER_PACKET, (size_t[]){n.size()}),
                CREATE_USER_PACKET),
         name(n) {}
-  CreateUserPacket(const byte* buffer, const int& size) : Packet(buffer, size) {}
+  CreateUserPacket(const byte* buffer, const int& size)
+      : Packet(buffer, size) {}
   const std::string& getName() const { return name; }
   void serialization() override {
     buffer.putByte(packetType);
@@ -162,10 +168,11 @@ class CreateProfileImage : public Packet {
       : Packet(::getPacketSize(CREATE_PROFILE_PICTURE, nullptr),
                CREATE_PROFILE_PICTURE),
         profileImage(color) {}
-  CreateProfileImage(byte* data, const int& size)
+  CreateProfileImage(const byte* data, const int& size)
       : Packet(data, size), profileImage(1024) {}
   const std::vector<int>& getColors() const { return profileImage; }
   void serialization() override {
+    buffer.putByte(packetType);
     for (int i = 0; i < (int)profileImage.size(); i++) {
       buffer.putInt(profileImage[i]);
     }
@@ -187,7 +194,7 @@ class CreateARoomPacket : public Packet {
       : Packet(::getPacketSize(CREATE_ROOM_PACKET, (size_t[]){name.length()}),
                CREATE_ROOM_PACKET),
         roomName(name) {}
-  CreateARoomPacket(byte* data, const int& size) : Packet(data, size) {}
+  CreateARoomPacket(const byte* data, const int& size) : Packet(data, size) {}
   const std::string& getRoomName() const { return roomName; }
   void serialization() override {
     buffer.putByte(packetType);
@@ -486,7 +493,7 @@ class CreateARoomRespondPacket : public Packet {
       : Packet(::getPacketSize(CREATE_A_ROOM_RESPOND_PACKET, nullptr),
                CREATE_A_ROOM_RESPOND_PACKET),
         status(s) {}
-  CreateARoomRespondPacket(byte * data, const int& size) : Packet(data,size) {}
+  CreateARoomRespondPacket(byte* data, const int& size) : Packet(data, size) {}
   const byte& getStatus() { return status; }
   void serialization() override {
     buffer.putByte(packetType);
@@ -497,5 +504,25 @@ class CreateARoomRespondPacket : public Packet {
     status = buffer.getByte();
   }
 };
+class ServerErrorMsg : public Packet {
+ private:
+  std::string message;
 
+ public:
+  ServerErrorMsg(const std::string& msg)
+      : Packet(::getPacketSize(SERVER_ERROR_MSG, (size_t[]){msg.length()}),
+               SERVER_ERROR_MSG),
+        message(msg) {}
+  ServerErrorMsg(const byte* data, const int& size) : Packet(data, size) {
+    message.reserve(size - 1);
+  }
+  void serialization() override {
+    buffer.putByte(packetType);
+    buffer.putString(message);
+  }
+  void derserialization() override {
+    packetType = buffer.getByte();
+    message = buffer.getString(m_size - 1);
+  }
+};
 #endif

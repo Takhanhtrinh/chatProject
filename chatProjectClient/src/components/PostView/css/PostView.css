@@ -36,3 +36,11 @@
 .PostViewContainer .imagePost {
     margin-left: 65px;
 }
+.PostViewContainer .imagePost canvas {
+    border-radius: 4px;
+    /* background-color:white; */
+    /* image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges; */
+}

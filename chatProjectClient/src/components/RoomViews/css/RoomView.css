@@ -8,6 +8,7 @@
     overflow-y:scroll;
 }
 .RoomListContainer .input-container {
+    background-color: #1E1E1E;
     height: 40px;
     padding: 5px 15px;
 
@@ -27,6 +28,7 @@
     color: #525458;
 }
 .RoomListContainer .userInfo {
+    background-color: #1E1E1E;
     height: 40px;
 }
 

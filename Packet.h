@@ -97,7 +97,7 @@ inline int getPacketSize(const byte& type, void* data) {
           // find total string length
           totalStringLength += it->second->getName().length();
         }
-        return 1 + 4 + totalByteToStoreVariableNameLength +
+        return 1 +  4 + 4 + totalByteToStoreVariableNameLength +
                totalByteToStoreUserId + totalStringLength;
       }
     }
@@ -420,15 +420,18 @@ class NewMsgFromUser : public Packet {
 class JoinARoomRespondPacket : public Packet {
  private:
   uint8_t status;
+  unsigned int roomId;
   std::map<unsigned int, User*>* users;
   std::map<unsigned int, std::string> usersForDeserialization;
   uint32_t totalUsers;
 
  public:
-  JoinARoomRespondPacket(const uint8_t& s, std::map<unsigned int, User*>* u)
+  JoinARoomRespondPacket(const uint8_t& s, const unsigned int& id , std::map<unsigned int, User*>* u)
       : Packet(::getPacketSize(JOIN_A_ROOM_RESPOND_PACKET, u),
                JOIN_A_ROOM_RESPOND_PACKET),
-        status(s) {
+        status(s),
+        roomId(id)
+  {
     users = u;
     if (u != nullptr)
       totalUsers = u->size();
@@ -448,6 +451,7 @@ class JoinARoomRespondPacket : public Packet {
       buffer.putByte(status);
       return;
     }
+    buffer.putInt(roomId);
     buffer.putInt(totalUsers);
     if (users != nullptr) {
       for (auto it = users->begin(); it != users->end(); it++) {

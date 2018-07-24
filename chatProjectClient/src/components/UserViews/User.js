@@ -40,7 +40,6 @@ export default class User extends React.Component {
         value = Math.round(value);
         this.state.containerWidth = value;
         this.setState({containerWidth: value});
-        console.log("containerWidth: " + this.state.containerWidth );
 
     }
     componentDidMount() {

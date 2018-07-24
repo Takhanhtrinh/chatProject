@@ -32,7 +32,7 @@
     /* background-color:white;
     opacity: 0.5; */
 }
-canvas {
+.userCanvasContainer canvas {
     border-top-left-radius:  4px;
     border-top-right-radius: 4px;
     /* padding: 5px 15px; */

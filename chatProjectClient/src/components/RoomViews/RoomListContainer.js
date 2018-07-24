@@ -2,19 +2,24 @@ import React from 'react'
 import './css/RoomView.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import {INFO_HEIGHT} from '../../Constant'
-import RoomStore from '../../stores/RoomStore'
+import roomStore from '../../stores/RoomStore'
 import Room from './Room'
+import userStore from '../../stores/UserStore'
 export default class RoomListContainer extends React.Component {
     constructor() {
         super();
         this.state = {list: []};
-            const array = RoomStore.getAll();
-            this.state = {list: array.map((d) => <Room key = {d.id}id={d.id} roomName={d.message}/>)};
+            const array = roomStore.getList();
+            this.state = {list: array.map((d) => <Room key = {d.id}id={d.id} roomName={d.roomName}/>)};
     }
     componentWillMount() {
-        RoomStore.on("change", ()=> {
-            const array = RoomStore.getAll();
-            this.state = {list: array.map((d) => <Room id={d.id} roomName={d.message}/>)};
+        roomStore.on("change", ()=> {
+            const array = roomStore.getList();
+            console.log(array);
+            var userData= {roomId: array[0].roomId, users:array[0].users};
+            userStore.deSerialize(userData);
+
+            // this.state = {list: array.map((d) => <Room id={d.id} roomName={d.message}/>)};
         });
     }
     render() {

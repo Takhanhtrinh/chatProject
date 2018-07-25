@@ -45,3 +45,31 @@
     
 
 }
+.RoomListContainer .roomList .roomContainerActive {
+    font-size: 14px;
+    background-color:#515254;
+    padding: 5px 15px;
+    /* border-bottom: 1px solid black; */
+    overflow: hidden;
+    white-space: pre-wrap;      /* CSS3 */   
+    white-space: -moz-pre-wrap; /* Firefox */    
+    white-space: -pre-wrap;     /* Opera <7 */   
+    white-space: -o-pre-wrap;   /* Opera 7 */    
+    word-wrap: break-word;      /* IE */
+    
+
+}
+.RoomListContainer .roomList .roomContainerHover {
+    font-size: 14px;
+    background-color: #7d7e80;
+    padding: 5px 15px;
+    /* border-bottom: 1px solid black; */
+    overflow: hidden;
+    white-space: pre-wrap;      /* CSS3 */   
+    white-space: -moz-pre-wrap; /* Firefox */    
+    white-space: -pre-wrap;     /* Opera <7 */   
+    white-space: -o-pre-wrap;   /* Opera 7 */    
+    word-wrap: break-word;      /* IE */
+    
+
+}

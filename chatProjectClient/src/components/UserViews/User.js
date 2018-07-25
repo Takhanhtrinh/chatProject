@@ -1,9 +1,10 @@
 import React from 'react'
+import userStore from '../../stores/UserStore'
 
 export default class User extends React.Component {
 
-    constructor() {
-        super();
+    constructor(probs) {
+        super(probs);
         // calculate parent container width
         this.state = {containerWidth: 0};
         this.calculateWidth();
@@ -66,7 +67,7 @@ export default class User extends React.Component {
             <div className="userCanvasContainer">
                 <canvas ref="canvas" width={this.state.containerWidth - 30 } height={this.state.containerWidth - 30}> </canvas>
                     <div className ="nameContainer">
-                        <div className="name">@TrinhTaasjldaksdfladkjflaksdjflksdjf</div>
+                        <div className="name">@{this.props.userName}</div>
                     </div>
             </div>
         );

@@ -20,5 +20,4 @@ export default class MessagePost extends React.Component {
 
         );
     }
-
 }

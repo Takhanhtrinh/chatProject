@@ -45,10 +45,9 @@ export default class UserViewContainer extends React.Component {
                 <div className="inputContainer">
                     <input type = "text" className ="form-control" placeholder="Find a user in this room..." />
                  </div>
-                 <div className = "userList" style = {{width: "100%", height: window.innerHeight - INFO_HEIGHT - 53 * 2}}>
+                 <div className = "userList" style = {{width: "100%", height: window.innerHeight - INFO_HEIGHT - 53}}>
                      {components}
                  </div>
-                 <div className= "myUserInfo"> </div>
             </div>
    
 

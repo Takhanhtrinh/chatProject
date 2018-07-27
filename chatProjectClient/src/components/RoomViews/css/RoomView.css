@@ -1,6 +1,7 @@
 .RoomListContainer {
     background-color: #2C2E2F;
     color: #B4B3B6;
+    border-right: 1px solid #1E1E1E;
     /* padding: 5px 15px; */
 }
 .RoomListContainer .roomList {
@@ -8,7 +9,7 @@
     overflow-y:scroll;
 }
 .RoomListContainer .input-container {
-    background-color: #1E1E1E;
+    /* background-color: #1E1E1E; */
     height: 53px;
     padding: 10px 15px;
 
@@ -27,15 +28,21 @@
 .RoomListContainer .input-container input ::-ms-input-placeholder{
     color: #525458;
 }
-.RoomListContainer .roomBtns {
-    background-color: #1E1E1E;
-    height: 53px;
+.RoomListContainer .myName {
+    display: inline-block;
+    white-space: nowrap; 
+    overflow:hidden;
+    cursor: pointer;
+    text-overflow: ellipsis;
+    padding: 15px;
+    height: 100%;
+    width: 100%;
+    background-color:red;
+    border-radius: 2px;
 }
-
 .RoomListContainer .roomList .roomContainer {
     font-size: 14px;
     padding: 5px 15px;
-    /* border-bottom: 1px solid black; */
     overflow: hidden;
     white-space: pre-wrap;      /* CSS3 */   
     white-space: -moz-pre-wrap; /* Firefox */    

@@ -6,6 +6,8 @@ import roomStore from '../../stores/RoomStore'
 import Room from './Room'
 import Dispatcher from '../../stores/Dispatcher'
 import userStore from '../../stores/UserStore'
+import Search from '@material-ui/icons/Search';
+import Add from '@material-ui/icons/Add'
 export default class RoomListContainer extends React.Component {
     constructor() {
         super();
@@ -38,6 +40,9 @@ export default class RoomListContainer extends React.Component {
         data.roomId = index;
         Dispatcher.dispatch(data);
     }
+    myNameClicked() {
+        console.log("clicked");
+    }
 
     render() {
         var components = [];
@@ -55,9 +60,7 @@ export default class RoomListContainer extends React.Component {
                 <div className="roomList" style={{ height: window.innerHeight - 53 * 2 - INFO_HEIGHT }}>
                     {components}
                 </div>
-                <div className="roomBtns">
-                    <div className="roomBtn searchBtn"> </div>
-                </div>
+                <div onClick ={this.myNameClicked.bind(this)} className="myName">Trinasdjlsakdjlaskdjhlk</div>
             </div>
         );
     }

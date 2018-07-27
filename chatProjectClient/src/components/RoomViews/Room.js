@@ -9,6 +9,7 @@ export default class Room extends React.Component {
     }
     onClickHandler() {
         this.props.setSelectedIndex(this.props.id);
+        
     }
     onMouseEnter() {
         this.setState(

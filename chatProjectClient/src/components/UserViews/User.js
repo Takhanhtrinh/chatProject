@@ -1,5 +1,4 @@
 import React from 'react'
-import userStore from '../../stores/UserStore'
 
 export default class User extends React.Component {
 

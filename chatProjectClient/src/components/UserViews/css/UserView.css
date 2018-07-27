@@ -1,20 +1,20 @@
 .UserViewContainer {
     background-color: #2A2A2A;
-    overflow: scroll;
+    /* overflow: scroll; */
     /* padding: 5px 10px; */
 }
 .UserViewContainer .inputContainer {
-    height: 40px;
-    padding: 5px 15px;
+    height: 53px;
+    padding: 10px 15px;
     position: sticky;
     top: 0;
-    background-color: #2A2A2A;
+    background-color: #1E1E1E;
 
 }
 .UserViewContainer .inputContainer input {
     background-color: #3A3B3F;
     color:#DDDDDD;
-    font-size: 14px;
+    font-size: 12px;
     height: 30px;
     border: 0;
 }
@@ -58,4 +58,12 @@
     word-wrap: break-word;      /* IE */
     padding: 0 5px;
     font-size: 14px;
+}
+.UserViewContainer .myUserInfo {
+    background-color:#1E1E1E;
+    height: 53px;
+    width: 100%;
+}
+.UserViewContainer .userList {
+    overflow: scroll;
 }

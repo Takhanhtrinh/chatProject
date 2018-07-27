@@ -3,21 +3,25 @@ import './css/PostView.css'
 import MessagePost from './MessagePost'
 import ImagePost from './ImagePost'
 export default class PostViewContainer extends React.Component {
-    constructor(){
+    constructor() {
         super();
     }
 
     render() {
+        var com;
+        if (this.props.messageType == "text") {
+            com = <MessagePost key={this.props.timeStamp} messageLength={this.props.messageLength} message={this.props.message} userId={this.props.userId} userName={this.props.userName} timeStamp={this.props.timeStamp} />
+
+        }
+        else {
+            com = <ImagePost />
+        }
         return (
-            <div className="PostViewContainer"> 
-                <div className = "profileImage"></div>
-                    <div className="inline">
-                        <div className = "name">Trinh Ta</div>
-                         <div className="time"> 15:23
-                    </div>
-                </div>
-                <ImagePost />
-        </div>
+            <div className="PostViewContainer">
+
+                {com};
+                <ImagePost userName  = "trinh ta" timeStamp = "july 26" />
+            </div>
         );
     }
 }

@@ -10,6 +10,16 @@ class UserStore extends EventEmitter {
     getList() {
         return this.list;
     }
+    getUserName(roomId, userId) {
+        var array = this.list.get(roomId);
+        if (array != undefined) {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i].id == userId) 
+                    return array[i].name;
+            }
+        }
+        return undefined;
+    }
     deSerialize(data) {
         const actionType = data.actionType;
         console.log(data);
@@ -39,7 +49,7 @@ class UserStore extends EventEmitter {
                 if (this.list.get(roomId) != undefined) {
                     const e = {id: userId, name:userName};
                     this.list.get(roomId).push(e);
-                    this.emit("addNewUser", roomId);
+                    this.emit("modifiedList", roomId);
                 } else {
                     throw new ("this room doest exist");
                 }
@@ -65,7 +75,7 @@ class UserStore extends EventEmitter {
                     if (index != -1){
                            array.splice(index,1);
                         this.list.set(roomId, array);
-                        this.emit("roomSelected", roomId);
+                        this.emit("modifiedList", roomId);
                     }
                     else {
                     }

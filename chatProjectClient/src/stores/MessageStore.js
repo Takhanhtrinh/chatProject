@@ -1,62 +1,89 @@
-import Store from './Store' 
-import { TEXT_MESSAGE_TYPE, PIXEL_MESSAGE_TYPE, MAXIMUM_PIXEL_ART_SIZE } from '../Constant';
+import {EventEmitter} from 'events'
+import userStore from './UserStore'
+import { NEW_TEXT_MESSAGE, CURRENT_SELECT_ROOM_ID, ROOM_SELECTED } from '../Constant';
+import Dispatcher from './Dispatcher'
 
-class MessageStore extends Store{
+class MessageStore extends EventEmitter{
     constructor() {
         super();
+        // key is roomId
+        this.list = new Map();
     }
-    deSerialize(data) {
-        var arrayBuffer = new ArrayBuffer(data.length);
-        var view = new DataView(arrayBuffer);
-        var offset = 0;
-        const type = view.getUint8(offset++);
-        const messageType = view.getUint8(offset++);
-        if (messageType == TEXT_MESSAGE_TYPE) {
-            const length = view.getUint16(offset);
-            offset+= 2;
-            var roomName = " ";
-            roomName.repeat(length);
-            for (var index = 0; offset < data.length ; offset++) {
-                roomName[index++] = view.getUint8(offset);
-            }
-            var msg = {
-                messageType: messageType,
-                nameLength: length,
-                roomName: roomName
-            }
-            this.list.push(msg);
-        }
-        else if(messageType ==  PIXE_MESSAGE_TYPE) {
-            var pixel = {"data": []};
-            for (var i =0 ; i < MAXIMUM_PIXEL_ART_SIZE; i++) {
-                const r = view.getUint8(offset++);
-                const g = view.getUint8(offset++);
-                const b = view.getUint8(offset++);
-                const a = view.getUint8(offset++);
-                pixel.data.push({
-                   r: r,
-                   g: g,
-                   b: b, 
-                   a: a
-                })
-
-            }
-            this.list.push({
-                messageType: messageType,
-                data: pixel.data
-            })
-            
+    getList() {
+        return this.list;
+    }
+    newRoom(id) {
+        if (this.list.has(id)) {
+            throw new ("this room already exist");
         }
         else {
-            throw new("MESSAGE STORE: cant find this message type");
+            this.list.set(id,[]);
         }
-        this.newMessage();
 
     }
-    newMessage() {
-        this.emit("change");
+    deSerialize(data){
+        const actionType = data.actionType;
+        switch(actionType) {
+            case NEW_TEXT_MESSAGE: {
+                const userName = data.userName; 
+                if (userName == undefined) {
+                    throw new ("userName is null");
+                }
+                const roomId = data.roomId;
+                const timeStamp = data.timeStamp;
+                const userId = data.userId;
+                const messageLength = data.messageLength;
+                const message = data.message;
+                console.log("roomid: " + roomId);
+                console.log("timestamp: " , timeStamp);
+                console.log("userId: ", userId);
+                console.log("messageLength: " , messageLength);
+                console.log("message: ", message);
+                console.log("userName: " , userName);
+                if (this.list.has(roomId)) {
+                   var array = this.list.get(roomId);
+                   
+                   const e = {
+                       messageType: "text",
+                       timeStamp: timeStamp,
+                       userId: userId,
+                       userName: userName,
+                       messageLength: messageLength,
+                       message: message,
+                   }
+                   array.push(e);
+                    
+                }
+                else {
+                    var array = [];
+                    const e = {
+                        messageType: "text",
+                       timeStamp: timeStamp,
+                       userId: userId,
+                       userName: userName,
+                       messageLength: messageLength,
+                       message: message
+                    }
+                    array.push(e);
+                }
+                this.emit("newTextMessage", roomId);
+                break;
+            }
+        }
+        
     }
+    actionHandler(action) {
+        const actionType = action.actionType;
+        switch(actionType) {
+            case ROOM_SELECTED: {
+                const roomId = action.roomId;
+                this.emit("changeSelectedRoom", roomId);
+                break;
+            }
+        }
 
+    }
 }
 var messageStore = new MessageStore;
+Dispatcher.register(messageStore.actionHandler.bind(messageStore));
 export default messageStore;

@@ -421,16 +421,18 @@ class JoinARoomRespondPacket : public Packet {
  private:
   uint8_t status;
   unsigned int roomId;
+  std::string roomName; 
   std::map<unsigned int, User*>* users;
   std::map<unsigned int, std::string> usersForDeserialization;
   uint32_t totalUsers;
 
  public:
-  JoinARoomRespondPacket(const uint8_t& s, const unsigned int& id , std::map<unsigned int, User*>* u)
+  JoinARoomRespondPacket(const uint8_t& s, const unsigned int& id , const std::string& r ,std::map<unsigned int, User*>* u)
       : Packet(::getPacketSize(JOIN_A_ROOM_RESPOND_PACKET, u),
                JOIN_A_ROOM_RESPOND_PACKET),
         status(s),
-        roomId(id)
+        roomId(id),
+        roomName(r)
   {
     users = u;
     if (u != nullptr)

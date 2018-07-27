@@ -9,14 +9,14 @@
 }
 .RoomListContainer .input-container {
     background-color: #1E1E1E;
-    height: 40px;
-    padding: 5px 15px;
+    height: 53px;
+    padding: 10px 15px;
 
 }
 .RoomListContainer .input-container input {
     background-color: #3A3B3F;
     color:#DDDDDD;
-    font-size: 14px;
+    font-size: 12px;
     height: 30px;
     border: 0;
 }
@@ -27,9 +27,9 @@
 .RoomListContainer .input-container input ::-ms-input-placeholder{
     color: #525458;
 }
-.RoomListContainer .userInfo {
+.RoomListContainer .roomBtns {
     background-color: #1E1E1E;
-    height: 40px;
+    height: 53px;
 }
 
 .RoomListContainer .roomList .roomContainer {

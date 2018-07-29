@@ -15,7 +15,7 @@ Buffer::Buffer(const byte b[], int size)
   for (int i = 0; i < capacity; i++) buffer[i] = b[i];
 #ifdef DEBUG
   std::cout << "buffer size: " << capacity << std::endl;
-#endif 
+#endif
 }
 
 void Buffer::putByte(const byte& value) {
@@ -53,6 +53,24 @@ void Buffer::putInt(const ::uint32_t& value) {
   buffer[position++] = byte4;
   limit = position;
 }
+void Buffer::putLong(const ::uint64_t& value) {
+  byte byte1 = value & 0xff;
+  byte byte2 = (value >> 8) & 0xff;
+  byte byte3 = (value >> 16) & 0xff;
+  byte byte4 = (value >> 24) & 0xff;
+  byte byte5 = (value >> 32) & 0xff;
+  byte byte6 = (value >> 40) & 0xff;
+  byte byte7 = (value >> 48) & 0xff;
+  byte byte8 = (value >> 56) & 0xff;
+  buffer[position++] = byte1;
+  buffer[position++] = byte2;
+  buffer[position++] = byte3;
+  buffer[position++] = byte4;
+  buffer[position++] = byte5;
+  buffer[position++] = byte6;
+  buffer[position++] = byte7;
+  buffer[position++] = byte8;
+}
 
 void Buffer::putFloat(const Float& value) { putInt(value.intValue); }
 
@@ -87,6 +105,21 @@ byte Buffer::getByte() {
   int byte3 = buffer[position++] << 16;
   int byte4 = buffer[position++] << 24;
   int value = byte1 | byte2 | byte3 | byte4;
+  return value;
+}
+::uint64_t Buffer::getLong() {
+  if (position + 8 > limit)
+    throw Buffer_Exception("out of range (limit < position)");
+  uint64_t byte1 = (uint64_t)buffer[position++];
+  uint64_t byte2 = (uint64_t)buffer[position++] << 8;
+  uint64_t byte3 = (uint64_t)buffer[position++] << 16;
+  uint64_t byte4 = (uint64_t)buffer[position++] << 24;
+  uint64_t byte5 = (uint64_t)buffer[position++] << 32;
+  uint64_t byte6 = (uint64_t)buffer[position++] << 40;
+  uint64_t byte7 = (uint64_t)buffer[position++] << 48;
+  uint64_t byte8 = (uint64_t)buffer[position++] << 56;
+  uint64_t value =
+      byte1 | byte2 | byte3 | byte4 | byte5 | byte6 | byte7 | byte8;
   return value;
 }
 float Buffer::getFloat() {

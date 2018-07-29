@@ -31,6 +31,8 @@ class Buffer {
   void putShort(const ::uint16_t& value);
   // put int
   void putInt(const ::u_int32_t& value);
+  //put long
+  void putLong(const ::uint64_t& value);
   // put float
   void putFloat(const Float& value);
   // put string
@@ -41,6 +43,8 @@ class Buffer {
   ::uint16_t getShort();
   // getInt
   ::uint32_t getInt();
+  //get Long
+  ::uint64_t getLong();
   // get float
   float getFloat();
 

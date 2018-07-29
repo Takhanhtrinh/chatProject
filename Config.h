@@ -2,6 +2,7 @@
 #define CONFIG_H
 #include <stdio.h>
 #include <stdlib.h>
+#include <chrono>
 typedef uint8_t byte;
 #define DEBUG 1
 union Float {
@@ -9,4 +10,5 @@ union Float {
   int intValue;
 };
 const int MAX_ROOM_NAME = 255;
+const int MAX_PIXEL_SIZE = 128;
 #endif

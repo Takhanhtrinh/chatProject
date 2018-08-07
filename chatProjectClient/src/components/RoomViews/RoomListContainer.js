@@ -13,7 +13,8 @@ export default class RoomListContainer extends React.Component {
         super();
         this.state = {
             list: [],
-            selectedId: 0
+            selectedId: 0,
+            open: false
         };
     }
     componentDidMount() {
@@ -40,8 +41,8 @@ export default class RoomListContainer extends React.Component {
         data.roomId = index;
         Dispatcher.dispatch(data);
     }
-    myNameClicked() {
-        console.log("clicked");
+    addButtonClicked() {
+        this.props.popup();
     }
 
     render() {
@@ -53,15 +54,18 @@ export default class RoomListContainer extends React.Component {
             components.push(e);
         }
         return (
-            <div className="RoomListContainer" style={{ height: window.innerHeight - INFO_HEIGHT }}>
-                <div className="input-container">
-                    <input type="text" className="form-control" placeholder="Find a room..." />
+                <div className="RoomListContainer" style={{ height: window.innerHeight - INFO_HEIGHT }}>
+                    <div className="input-container">
+                        <input type="text" className="form-control" placeholder="Find a room..." />
+                    </div>
+                    <div className="roomList" style={{ height: window.innerHeight - 53 * 2 - INFO_HEIGHT }}>
+                        {components}
+                    </div>
+                    <div className="row bottomContainer">
+                        <div className="myName col-8">{this.props.userName}</div>
+                        <div onClick={this.addButtonClicked.bind(this)} className="createRoom col-4">Add</div>
+                    </div>
                 </div>
-                <div className="roomList" style={{ height: window.innerHeight - 53 * 2 - INFO_HEIGHT }}>
-                    {components}
-                </div>
-                <div onClick ={this.myNameClicked.bind(this)} className="myName">Trinasdjlsakdjlaskdjhlk</div>
-            </div>
         );
     }
 

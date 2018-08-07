@@ -1,0 +1,28 @@
+.InitContainer {
+    /* padding: 15px; */
+    width: 100vw;
+    height: 100vh;
+    display: table;
+    overflow: hidden;
+    
+}
+.InitContainer .wrapper {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.InitContainer .wrapper input {
+    /* color:white; */
+    border: 1px solid  #3A3B3F;
+}
+.InitContainer .wrapper .text {
+    font-size: 25px;
+    font-weight: bold;
+    color:black;
+}
+.InitContainer .wrapper .smallText {
+    color:red;
+    font-size: 12px;
+    /* display: none; */
+}
+

@@ -28,17 +28,26 @@
 .RoomListContainer .input-container input ::-ms-input-placeholder{
     color: #525458;
 }
+.RoomListContainer .bottomContainer {
+    height: 53px;
+}
 .RoomListContainer .myName {
-    display: inline-block;
+    /* display: inline-block; */
     white-space: nowrap; 
     overflow:hidden;
-    cursor: pointer;
     text-overflow: ellipsis;
-    padding: 15px;
-    height: 100%;
-    width: 100%;
     background-color:red;
+    padding:15px;
+    height: 100%;
+    padding-left: 15px;
+
     border-radius: 2px;
+}
+.RoomListContainer .createRoom {
+    background-color:blue;
+    padding: 15px 10px;
+    height: 100%;
+    cursor: pointer;
 }
 .RoomListContainer .roomList .roomContainer {
     font-size: 14px;

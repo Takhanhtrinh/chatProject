@@ -1,76 +1,56 @@
 #include "Room.h"
+#include "User.h"
 
-Room ::Room(const std::string& roomName, const unsigned int& id)
-    : room_tag(roomName), roomId(id) {}
+Room::Room(const std::string& name, const unsigned int& id)
+    : m_name(name), m_roomId(id) {}
 
-void Room::sendAll(byte* msg, const unsigned int& from) const {
-  auto find = m_users.find(from);
-  if (find == m_users.end()) {
-#ifdef DEBUG
-    printf("Room: sendAll the user doesn't exist in this room, userId: %d\n",
-           from);
-#endif
-  } else {
-    std::string data((const char*)msg);
-    NewMsgFromUser* packet = new NewMsgFromUser(data, from, roomId);
-    packet->serialization();
-    for (auto it = m_users.begin(); it != m_users.end(); it++) {
-      it->second->sendMsg(packet->getBuffer());
+Room* CREATE(const std::string& name, const unsigned int& id) {
+  return new Room(name, id);
+}
+
+User* Room::getUser(const unsigned int& uid) {
+  auto find = users.find(uid);
+  if (find != users.end()) {
+    return users.at(uid);
+  }
+  return nullptr;
+}
+void Room::sendMsgTooAll(const std::string& msg, const unsigned int& from) {
+  auto find = users.find(from);
+  if (find != users.end()) {
+    std::unique_ptr<Server_Send_New_Message> packet =
+        std::make_unique<Server_Send_New_Message>(msg, m_roomId, from, ++msgId);
+    packet->serialize();
+    for (auto it = users.begin(); it != users.end(); it++) {
+      if (it->first == from) continue;
+      it->second->sendMsg((const char*)packet->buffer.getBuffer());
     }
-    delete packet;
+    return;
   }
-}
-
-uint8_t Room::userJoinRoom(const unsigned int& id, User* user) {
-  if (m_users.find(id) == m_users.end()) {
-    m_users[id] = user;
-    user->joinARoom(roomId, this);
 #ifdef DEBUG
-    printf("a new user enter this room: %s", user->getName().c_str());
+  printf(
+      "cant send data to all users because this userId: %d doesn't belong to "
+      "this roomId : %d",
+      from, m_roomId);
 #endif
-    return ADD_SUCCESS_USER_TO_THE_ROOM;
-  }
-  return USER_ALREADY_IN_THE_ROOM;
 }
-
-uint8_t Room::userLeaveRoom(const unsigned int& id) {
-  if (m_users.find(id) == m_users.end()) return USER_NOT_IN_THIS_ROOM;
-  m_users[id]->leaveARoom(roomId);
-  m_users.erase(id);
-  AnUserLeaveARoom* packet = new AnUserLeaveARoom(id);
-  packet->serialization();
-  for (auto it = m_users.begin(); it != m_users.end(); it++) {
-    it->second->sendMsg(packet->getBuffer());
+bool Room::JoinRoom(const unsigned int& uid, User* user) {
+  auto find  = users.find(uid);
+  if (find != users.end()) {
+    users.insert(std::make_pair<unsigned int, User*>((unsigned int)uid,(User*)user));
+    return true;
   }
-  delete packet;
-#ifdef DEBUG
-  printf("a userid: %d left this room: %d\n", id, roomId);
-#endif
-  return REMOVE_USER_SUCCESS;
+  return false;
 }
-void Room::sendOnlyToUsers(byte* msg, const std::vector<unsigned int>& u,
-                           const unsigned int& sendFrom) const {
-  // check if this send from belong to this room
-  auto find = m_users.find(sendFrom);
-  // found it
-  if (find != m_users.end()) {
-    std::map<unsigned int, User*> cacheSendUsers;
-    for (int i = 0; i < u.size(); i++) {
-      // find these users need to send
-      unsigned int id = u[i];
-      auto it = m_users.find(id);
-      if (it != m_users.end()) {
-        cacheSendUsers[id] = it->second;
-      }
-    }
-    find->second->setSendUsers(roomId, cacheSendUsers);
-    for (auto it = cacheSendUsers.begin(); it != cacheSendUsers.end(); it++)
-      it->second->sendMsg(msg);
-  }
-  // not found
-  else {
-#ifdef DEBUG
-    printf("user with id: %d not in this room: %d\n", sendFrom, roomId);
-#endif
+void Room::sendMsgTooUsers(const std::string& msg, const unsigned int& from,
+                           const std::vector<unsigned int>& ids) {
+  if (ids.size() == 0) return;
+  std::unique_ptr<Server_Send_New_Message> packet =
+      std::make_unique<Server_Send_New_Message>(msg, m_roomId, from, ++msgId);
+  packet->serialize();
+  for (int i = 0; i < ids.size(); i++) {
+    User* user = getUser(ids[i]);
+    if (user == nullptr) continue;
+    user->sendMsg((const char*)packet->buffer.getBuffer());
   }
 }

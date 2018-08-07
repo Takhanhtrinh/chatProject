@@ -36,102 +36,101 @@ void Server::msgParse(const byte* data, const size_t& length,
                       uWS::WebSocket<uWS::SERVER>* ws) {
   User* u = (User*)ws->getUserData();
   byte type = ::getPacketType(data);
-  if (u == nullptr && type != CREATE_USER_PACKET) {
+  if (u == nullptr && type != CLIENT_INIT_PACKET) {
     ws->close();
     return;
   }
-  if (u != nullptr && type == CREATE_USER_PACKET) {
+  if (u != nullptr && type == CLIENT_INIT_PACKET) {
+    ws->close();
+    return;
+  }
+  if (!checkValidPacketSize(type, length)) {
     ws->close();
     return;
   }
   switch (type) {
-    case CREATE_USER_PACKET: {
-      std::unique_ptr<CreateUserPacket> packet =
-          std::make_unique<CreateUserPacket>(data, (int)length);
-      packet->derserialization();
-      std::string name = packet->getName();
-      if (username.find(name) != username.end()) {
-        std::unique_ptr<ServerErrorMsg> packet1 =
-            std::make_unique<ServerErrorMsg>("This Name Already Exist");
-        packet1->serialization();
-        ws->send((const char*)packet1->getBuffer());
+    case CLIENT_INIT_PACKET: {
+      std::cout << data << std::endl;
+      std::unique_ptr<Client_Init_Packet> packet =
+          std::make_unique<Client_Init_Packet>(data, length);
+      packet->deSerialize();
+      // find unser name if it is exist or not
+      // case not exist, create User and push to container
+      if (username.find(packet->name) == username.end()) {
+#ifdef DEBUG
+        printf("New User Joined The App %s\n", packet->name.c_str());
+#endif
+        std::unique_ptr<Server_Init_Packet> packetRespond =
+            std::make_unique<Server_Init_Packet>(
+                SERVER_INIT_PACKET_STATUS_SUCCESS, "");
+        packetRespond->serialize();
+        unsigned int uid = getNextUserId();
+        m_users.insert(std::make_pair<unsigned int, std::unique_ptr<User>>(
+            (unsigned int)uid, std::make_unique<User>(packet->name, uid, ws)));
+        username.insert(packet->name);
+        User* user = m_users.at(uid).get();
+        ws->setUserData((void*)user);
+        ws->send((const char*)packetRespond->buffer.getBuffer(), uWS::BINARY);
+        // case exist send error msg and close connection
+      } else {
+#ifdef DEBUG
+          printf("this user already exist %s\n", packet->name.c_str());
+#endif
+        std::unique_ptr<Server_Init_Packet> packetRespond =
+            std::make_unique<Server_Init_Packet>(
+                SERVER_INIT_PACKET_STATUS_FAIL,
+                "This Name Already Exist Please Enter Another Name");
+        packetRespond->serialize();
+        ws->send((const char*)packetRespond->buffer.getBuffer(), uWS::BINARY);
+        printf("buffer: %s\n", packetRespond->buffer.getBuffer());
         ws->close();
+      }
+      break;
+    }
+    case CLIENT_CREATE_A_ROOM: {
+      std::unique_ptr<Client_Create_Room> packet =
+          std::make_unique<Client_Create_Room>(data, length);
+      packet->deSerialize();
+      if (roomName.find(packet->name) != roomName.end()) {
+        unsigned int roomId = getNextRoomId();
+        m_rooms.insert(std::make_pair<unsigned int, std::unique_ptr<Room>>(
+            (unsigned int)roomId,
+            std::make_unique<Room>(packet->name, roomId)));
+        roomName.insert(packet->name);
+        Room* room = m_rooms.at(roomId).get();
+#ifdef DEBUG
+        assert(room != nullptr);
+#endif
+        room->JoinRoom(u->getId(), u);
+        std::unique_ptr<Server_Create_Room_Respond> packetRespond =
+            std::make_unique<Server_Create_Room_Respond>(
+                SERVER_CREATE_A_ROOM_SUCCESS, roomId, packet->name);
+        packetRespond->serialize();
+        ws->send((const char*)packetRespond->buffer.getBuffer());
+      } else {
+        std::unique_ptr<Server_Create_Room_Respond> packetRespond =
+            std::make_unique<Server_Create_Room_Respond>(
+                SERVER_CREATE_A_ROOM_FAIL_ALREADY_EXIST, -1, "");
+        packetRespond->serialize();
+        ws->send((const char*)packetRespond->buffer.getBuffer());
         return;
       }
-      // create user id
-      unsigned int id = getNextUserId();
-      std::unique_ptr<User> user = std::make_unique<User>(name, id, ws);
-      m_users[id] = std::move(user);
-      username.insert(name);
-      ws->setUserData(m_users.at(id).get());
-      break;
     }
-    case CREATE_PROFILE_PICTURE: {
-      if (length != ::getPacketSize(CREATE_PROFILE_PICTURE, nullptr)) {
-        m_users.erase(u->getId());
-        ws->close();
-        break;
-      }
-      std::unique_ptr<CreateProfileImage> packet =
-          std::make_unique<CreateProfileImage>(data, (int)length);
-      packet->derserialization();
-      u->setProfileImage(packet->getColors());
-      break;
-    }
-    case CREATE_ROOM_PACKET: {
-      if (length > 1 && length < MAX_ROOM_NAME) {
-        std::unique_ptr<CreateARoomPacket> packet =
-            std::make_unique<CreateARoomPacket>(data, length);
-        packet->derserialization();
-        // find if there is no room have a same name
-        if (roomName.find(packet->getRoomName()) == roomName.end()) {
-          roomName.insert(packet->getRoomName());
-          int rid = getNextRoomId();
-          m_rooms[rid] = std::make_unique<Room>(packet->getRoomName(), rid);
-          std::unique_ptr<CreateARoomRespondPacket> pk =
-              std::make_unique<CreateARoomRespondPacket>(CREATE_ROOM_OK);
-          pk->serialization();
-          ws->send((const char*)pk->getBuffer());
-#ifdef DEBUG
-          printf("create room %s ok\n", packet->getRoomName().c_str());
-#endif
-          break;
+    case CLIENT_SEND_TEXT_MESSAGE: {
+      std::unique_ptr<Client_Send_Text_Message> packet =
+          std::make_unique<Client_Send_Text_Message>(data, length);
+      packet->deSerialize();
+      auto roomFind = m_rooms.find(packet->roomId);
+      if (roomFind != m_rooms.end()) {
+        Room* room = m_rooms.at(packet->roomId).get();
+        if (packet->sendTo.size() == 0) {
+          room->sendMsgTooAll(packet->msg, u->getId());
+        } else {
+          room->sendMsgTooUsers(packet->msg, u->getId(), packet->sendTo);
         }
-        // the name already created
-        else {
-          std::unique_ptr<CreateARoomRespondPacket> epk =
-              std::make_unique<CreateARoomRespondPacket>(CREATE_ROOM_FAILED);
-          epk->serialization();
-          ws->send((const char*)epk->getBuffer());
-          break;
-        }
-
       }
-      // user tried to send a long room name
-      else {
-        ws->close();
-      }
-      break;
-    }
-    case JOIN_A_ROOM_PACKET: {
-      if (::getPacketSize(JOIN_A_ROOM_PACKET, nullptr) != length) {
-        ws->close();
-        break;
-      }
-
-      break;
-    }
-    case SEND_DATA_TO_EVERYONE_IN_A_ROOM_PACKET: {
-      break;
-    }
-    case LEAVE_A_ROOM_PACKET: {
-      break;
-    }
-    case SEND_DATA_TO_USERS_IN_A_ROOM_PACKET: {
-      break;
     }
   }
-  std::cout << "type: " << type << std::endl;
 }
 const unsigned int& Server::getNextUserId() {
   numberOfUsers++;

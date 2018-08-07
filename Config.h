@@ -9,6 +9,7 @@ union Float {
   float floatValue;
   int intValue;
 };
-const int MAX_ROOM_NAME = 255;
+const int MAX_ROOM_NAME = 254;
 const int MAX_PIXEL_SIZE = 128;
+const int MAX_NAME_LENGTH = 31;
 #endif

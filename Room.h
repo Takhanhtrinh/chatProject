@@ -2,28 +2,28 @@
 #define ROOM_H
 #include <iostream>
 #include <map>
-#include "Config.h"
+#include <memory>
+#include <string>
+#include <vector>
 #include "Packet.h"
-#define USER_ALREADY_IN_THE_ROOM -1
-#define ADD_SUCCESS_USER_TO_THE_ROOM 1
-
-#define USER_NOT_IN_THIS_ROOM -1
-#define REMOVE_USER_SUCCESS 1
 class User;
 class Room {
  private:
-  std::string room_tag;
-  unsigned int roomId;
-  std::map<unsigned int, User*> m_users;
-  long create_time_stamp;
+  std::map<unsigned int, User*> users;
+  std::string m_name;
+  unsigned int m_roomId;
+  unsigned int msgId = 0;
 
  public:
-  Room(const std::string& roomName, const unsigned int& id);
-  void sendAll(byte* msg, const unsigned int& from) const;
-  void sendOnlyToUsers(byte* msg, const std::vector<unsigned int>& u,
-                       const unsigned int& sendFrom) const;
-  uint8_t userJoinRoom(const unsigned int& id, User* user);
-  uint8_t userLeaveRoom(const unsigned int& id);
-  virtual ~Room() {}
+  Room(const std::string& name, const unsigned int& id);
+  static Room* CREATE(const std::string& name, const unsigned int& id);
+  bool JoinRoom(const unsigned int& uid, User* user);
+  User* getUser(const unsigned int& uid);
+  const std::string& getName() const { return m_name; }
+  const unsigned int& getRoomId() const { return m_roomId; }
+  const unsigned int& getNextRoomId() { return ++msgId; }
+  void sendMsgTooAll(const std::string& msg, const unsigned int& from);
+  void sendMsgTooUsers(const std::string& msg, const unsigned int& from,
+                       const std::vector<unsigned int>& ids);
 };
 #endif

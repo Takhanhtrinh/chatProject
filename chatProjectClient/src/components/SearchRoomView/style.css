@@ -1,0 +1,31 @@
+.searchRoomContainer {
+    position: absolute;
+    width: 50vw;
+    height: 50vh;
+    left: 25%;
+    top: 25%;
+    z-index: 99999;
+    background-color: #2C2E2F;
+    border-radius: 4px;
+}
+
+.searchRoomContainer input {
+    margin-top: 15px;
+    margin-left: 15px;
+    border:none;
+    height: 30px;
+    font-size: 12px;
+    background-color:#3A3B3F !important;
+
+}
+.searchRoomContainer .result {
+    border-top: 1px solid #3A3B3F;
+    height: 79px;
+    color: #dddddd;
+    margin-left: 15px;
+}
+.searchRoomContainer button {
+    height: 30px;
+    font-size: 12px;
+    margin: 15px;
+}

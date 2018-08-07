@@ -30,7 +30,7 @@ const byte CLIENT_CREATE_A_ROOM = 'a';
 const byte SERVER_CREATE_A_ROOM = 'A';
 
 const byte SERVER_INIT_PACKET_STATUS_SUCCESS = 1;
-const byte SERVER_INIT_PACKET_STATUS_FAIL = 0;
+const byte SERVER_INIT_PACKET_STATUS_FAIL = 2;
 
 const byte SERVER_SEARCH_ROOM_ROOM_DOESNT_EXIST = 0;
 const byte SERVER_SEARCH_ROOM_ROOM_EXIST = 1;
@@ -41,15 +41,31 @@ const byte SERVER_SEND_PIXEL_MESSAGE_RESPOND_OK = 1;
 const byte SERVER_CREATE_A_ROOM_SUCCESS = 1;
 const byte SERVER_CREATE_A_ROOM_FAIL_ALREADY_EXIST = 0;
 
-uint64_t getServerCurrentTime() {
+inline uint64_t getServerCurrentTime() {
   using namespace std::chrono;
   uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(
                      std::chrono::system_clock::now().time_since_epoch())
                      .count();
   return now;
 }
+inline byte getPacketType(const byte* data) { return data[0]; }
+inline bool checkValidPacketSize(const byte& type, const size_t& length) {
+  switch (type) {
+    case CLIENT_INIT_PACKET:
+      return length > 1 && length < MAX_NAME_LENGTH + 1;
+    case CLIENT_SEARCH_ROOM_PACKET:
+      return length > 1 && length < MAX_ROOM_NAME + 1;
+    case CLIENT_SEND_TEXT_MESSAGE:
+      return length > 1;
+    case CLIENT_SEND_PIXEL_MESSAGE:
+      return length > MAX_PIXEL_SIZE;
+    case CLIENT_CREATE_A_ROOM:
+      return length > 1 && length < MAX_ROOM_NAME + 1;
+  }
+  return false;
+}
 
-int getPacketSize(const byte& packetType, const void* data) {
+inline int getPacketSize(const byte& packetType, const void* data) {
   switch (packetType) {
     case CLIENT_INIT_PACKET: {
       int nameLenth = *(const int*)data;
@@ -181,11 +197,10 @@ struct Server_Init_Packet : public Packet {
   Server_Init_Packet(const byte b[], const int& size) : Packet(b, size) {}
   void serialize() override {
     buffer.putByte(type);
+    buffer.putByte(status);
+    printf("status: %d\n", status);
     if (status == SERVER_INIT_PACKET_STATUS_FAIL) {
-      buffer.putByte(status);
       buffer.putString(statusStr);
-    } else {
-      buffer.putByte(status);
     }
   }
   void deSerialize() override {

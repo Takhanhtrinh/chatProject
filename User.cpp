@@ -11,7 +11,8 @@ User* CREATE(const std::string& name, const unsigned int& id,
 bool User::JoinRoom(const unsigned int& rid, Room* r) {
   auto find = rooms.find(rid);
   if (find != rooms.end()) {
-    rooms.insert(std::make_pair<unsigned int, Room*>((unsigned int)rid, (Room*)r));
+    rooms.insert(
+        std::make_pair<unsigned int, Room*>((unsigned int)rid, (Room*)r));
     return true;
   }
 #ifdef DEBUG
@@ -26,4 +27,6 @@ Room* User::getRoom(const unsigned int& rid) {
   } else
     return nullptr;
 }
-void User::sendMsg(const char* msg) const { ws->send(msg, uWS::BINARY); }
+void User::sendMsg(const char* msg, const unsigned int& size) const {
+  ws->send(msg, size, uWS::BINARY);
+}

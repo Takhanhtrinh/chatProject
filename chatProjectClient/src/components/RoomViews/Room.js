@@ -22,6 +22,9 @@ export default class Room extends React.Component {
             hover: false
         });
     }
+    deleteRoomClicked() {
+        console.log("deleted room: ", this.props.id);
+    }
     componentDidMount() {
 
     }
@@ -38,7 +41,8 @@ export default class Room extends React.Component {
         }
         return(
             <div onMouseLeave = {this.onMouseLeave.bind(this)} onMouseEnter = {this.onMouseEnter.bind(this)} onClick ={this.onClickHandler.bind(this)} className = {style}>
-                #{this.props.name}
+                #{this.props.name}  
+                {this.state.hover == true ? (<div onClick = {this.deleteRoomClicked.bind(this)} className = "delete">delete</div>) : ""}
             </div>
         );
     }

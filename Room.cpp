@@ -15,6 +15,14 @@ User* Room::getUser(const unsigned int& uid) {
   }
   return nullptr;
 }
+bool Room::userLeftRoom(const unsigned int& id) {
+  auto find = users.find(id);
+  if (find != users.end()) {
+    users.erase(find);
+    return true;
+  }
+  return false;
+}
 void Room::sendMsgTooAll(const std::string& msg, const unsigned int& from) {
   auto find = users.find(from);
   if (find != users.end()) {
@@ -22,8 +30,7 @@ void Room::sendMsgTooAll(const std::string& msg, const unsigned int& from) {
         std::make_unique<Server_Send_New_Message>(msg, m_roomId, from, ++msgId);
     packet->serialize();
     for (auto it = users.begin(); it != users.end(); it++) {
-      if (it->first == from) continue;
-      it->second->sendMsg((const char*)packet->buffer.getBuffer());
+      it->second->sendMsg((const char*)packet->buffer.getBuffer(), packet->buffer.getPacketSize());
     }
     return;
   }
@@ -35,9 +42,10 @@ void Room::sendMsgTooAll(const std::string& msg, const unsigned int& from) {
 #endif
 }
 bool Room::JoinRoom(const unsigned int& uid, User* user) {
-  auto find  = users.find(uid);
-  if (find != users.end()) {
-    users.insert(std::make_pair<unsigned int, User*>((unsigned int)uid,(User*)user));
+  auto find = users.find(uid);
+  if (find == users.end()) {
+    users.insert(
+        std::make_pair<unsigned int, User*>((unsigned int)uid, (User*)user));
     return true;
   }
   return false;
@@ -51,6 +59,7 @@ void Room::sendMsgTooUsers(const std::string& msg, const unsigned int& from,
   for (int i = 0; i < ids.size(); i++) {
     User* user = getUser(ids[i]);
     if (user == nullptr) continue;
-    user->sendMsg((const char*)packet->buffer.getBuffer());
+    user->sendMsg((const char*)packet->buffer.getBuffer(),
+                  packet->buffer.getPacketSize());
   }
 }

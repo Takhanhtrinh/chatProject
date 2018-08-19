@@ -9,15 +9,15 @@
 class User;
 class Room {
  private:
-  std::map<unsigned int, User*> users;
   std::string m_name;
   unsigned int m_roomId;
   unsigned int msgId = 0;
-
  public:
+  std::map<unsigned int, User*> users;
   Room(const std::string& name, const unsigned int& id);
   static Room* CREATE(const std::string& name, const unsigned int& id);
   bool JoinRoom(const unsigned int& uid, User* user);
+  bool userLeftRoom(const unsigned int &id);
   User* getUser(const unsigned int& uid);
   const std::string& getName() const { return m_name; }
   const unsigned int& getRoomId() const { return m_roomId; }

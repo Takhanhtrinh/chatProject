@@ -20,7 +20,6 @@ export default class PostViewContainer extends React.Component {
             <div className="PostViewContainer">
 
                 {com};
-                <ImagePost userName  = "trinh ta" timeStamp = "july 26" />
             </div>
         );
     }

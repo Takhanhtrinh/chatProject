@@ -1,6 +1,8 @@
 import React from 'react'
 import './css/InputView.css'
 import { INPUT_PADDING, MAXIMUM_INPUT_HEIGHT } from '../../Constant';
+import { userSendText } from '../../stores/Action';
+import roomStore from '../../stores/RoomStore'
 export default class InputViewContainer extends React.Component {
 
     constructor() {
@@ -78,40 +80,54 @@ export default class InputViewContainer extends React.Component {
         this.setState({ textFieldWidth: v });
 
     }
+
     windowReisze() {
         this.calculateTextFieldWidth();
-        console.log("vkl");
     }
     componentDidMount() {
-        console.log("mounted");
         this.calculateTextFieldWidth();
-        this.handleOnInput();
+        this.textField.current.value = "";
+        this.resizeTextField();
         window.addEventListener("resize", this.windowReisze.bind(this));
+        // done searching focus on the text field, after click search on search room
+        roomStore.on("doneSearching",() => {
+            this.textField.current.focus();
+
+
+        });
 
     }
 
     handleOnInput() {
-        var value = this.textField.current.value;
-        if (value.length > 0) {
-            if (value[value.length - 1] == '\n') {
+        let isNewLine = this.textField.current.value[this.textField.current.value.length - 1] == '\n';
+        var value = this.textField.current.value.trim();
+        if (value.length == 0) {
+            this.textField.current.value = '';
+            return;
+        }
+            if (isNewLine) {
+                let message = value;
+                 userSendText(message, this.props.currentRoomId(), []);
+                 console.log("roomid: " , this.props.currentRoomId());
                 this.textField.current.value = '';
                 value = this.textField.current.value;
             }
-        }
-        if (document.getElementsByClassName("tf")[0].clientHeight < MAXIMUM_INPUT_HEIGHT || value.length == '') {
+            this.resizeTextField();
+    }
+    resizeTextField() {
+        if (document.getElementsByClassName("tf")[0].clientHeight < MAXIMUM_INPUT_HEIGHT) {
             document.getElementsByClassName("tf")[0].setAttribute("style", "height: auto");
             document.getElementsByClassName("tf")[0].setAttribute("style", "height: " + this.textField.current.scrollHeight + "px;");
             document.getElementsByClassName("InputContainer")[0].setAttribute("style", "height: " + this.textField.current.scrollHeight + INPUT_PADDING + "px;");
             this.props.sizeChanged(this.textField.current.scrollHeight + INPUT_PADDING);
         }
 
-
     }
     render() {
         return (
             <div className="InputContainer">
                 <div style = {{width: this.state.textFieldWidth + "px", display: "inline-block"}} >
-                    <textarea id="textInput" placeholder="Enter a message..." rows="1" ref={this.textField} className="tf form-control" onInput={this.handleOnInput.bind(this)}> </textarea>
+                    <textarea autoFocus id="textInput" placeholder="Enter a message..." rows="1" ref={this.textField} className="tf form-control" onInput={this.handleOnInput.bind(this)}> </textarea>
                 </div>
                 <div className="buttonInline emotionBtn"> </div>
                 <div className="buttonInline pixelBtn"> </div>

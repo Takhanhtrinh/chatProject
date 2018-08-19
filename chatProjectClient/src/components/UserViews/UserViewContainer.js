@@ -13,21 +13,19 @@ export default class UserViewContainer extends React.Component {
     this.state = { list: [], roomSelected: 0 }
   }
   componentDidMount() {
-    userStore.on('roomSelected', (id) => {
-      const array = userStore.getList().get(id);
-      if (array != undefined) {
-        this.setState({list: array, roomSelected: id});
-        console.log('from user view container selected roomId: ', id);
-      } else {
-        throw new ('array is undefinied');
-      }
-    });
-    userStore.on('modifiedList', (id) => {
-      if (id == this.state.roomSelected) {
-        const array = userStore.getList().get(id);
-        this.setState({list: array, roomSelected: id});
-      }
-    });
+      userStore.on("selectedRoom", (id) => {
+          console.log("userViewContainerId: ", id);
+          if (this.state.roomSelected == id) return;
+        this.setState({roomSelected: id});
+        let array = userStore.getList().get(id);
+        this.setState({list: array});
+      });
+      userStore.on("change", (id) => {
+          if(this.state.roomSelected == id) {
+            let array = userStore.getList().get(id);
+            this.setState({list: array});
+          }
+      })
   }
   componentDidUpdate() {}
   updateCanvas() {}

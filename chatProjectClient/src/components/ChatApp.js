@@ -44,7 +44,6 @@ export default class ChatApp extends React.Component {
     }
 
     popupClickedOutside() {
-        console.log("outside");
         this.setState({
             popup:false
         })
@@ -53,7 +52,6 @@ export default class ChatApp extends React.Component {
         this.setState({
             popup:true
         })
-        console.log("vj");
     }
     render() {
         if (this.state.init == false) {
@@ -70,11 +68,7 @@ export default class ChatApp extends React.Component {
                 <div className="AppContainer">
                     <div className="popup" onClick={this.popupClickedOutside.bind(this)} style={{ display: popup }} >
                     </div>
-                    <div style={{
-                        display: popup
-                    }}>
-                        <SearchRoomContainer />
-                    </div>
+                        <SearchRoomContainer display={popup} closePopup = {this.popupClickedOutside.bind(this)}/>
                     <div className="row no-gutters">
                         <div className="col-12">
                             <InfoBar />

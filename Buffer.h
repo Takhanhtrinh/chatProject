@@ -8,7 +8,6 @@ const byte READING = 0x02;
 class Buffer_Exception : std::runtime_error {
  private:
   std::string msg;
-
  public:
   Buffer_Exception(const std::string& str);
   const char* what() const throw();

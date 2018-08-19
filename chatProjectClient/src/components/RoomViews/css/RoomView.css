@@ -33,14 +33,14 @@
 }
 .RoomListContainer .myName {
     /* display: inline-block; */
+    background-color:red;
+}
+.RoomListContainer .myName .padding {
     white-space: nowrap; 
     overflow:hidden;
     text-overflow: ellipsis;
-    background-color:red;
     padding:15px;
     height: 100%;
-    padding-left: 15px;
-
     border-radius: 2px;
 }
 .RoomListContainer .createRoom {
@@ -58,8 +58,6 @@
     white-space: -pre-wrap;     /* Opera <7 */   
     white-space: -o-pre-wrap;   /* Opera 7 */    
     word-wrap: break-word;      /* IE */
-    
-
 }
 .RoomListContainer .roomList .roomContainerActive {
     font-size: 14px;
@@ -76,6 +74,7 @@
 
 }
 .RoomListContainer .roomList .roomContainerHover {
+    position: relative;
     font-size: 14px;
     background-color: #7d7e80;
     padding: 5px 15px;
@@ -86,6 +85,11 @@
     white-space: -pre-wrap;     /* Opera <7 */   
     white-space: -o-pre-wrap;   /* Opera 7 */    
     word-wrap: break-word;      /* IE */
-    
-
+}
+.RoomListContainer .roomList .roomContainerHover .delete {
+    position: absolute;
+    background-color:orange;
+    height: 100%;
+    right: 0;
+    top: 0;
 }

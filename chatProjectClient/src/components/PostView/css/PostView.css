@@ -1,5 +1,6 @@
 .PostViewContainer {
-    padding: 15px;
+    margin:15px;
+    border-bottom: 1px solid black;
 }
 .PostViewContainer .profileImage {
     width: 50px;

@@ -21,7 +21,7 @@ class MessageStore extends EventEmitter{
         }
 
     }
-    deSerialize(data){
+    actionHandler(data){
         const actionType = data.actionType;
         switch(actionType) {
             case NEW_TEXT_MESSAGE: {
@@ -34,6 +34,7 @@ class MessageStore extends EventEmitter{
                 const userId = data.userId;
                 const messageLength = data.messageLength;
                 const message = data.message;
+                const msgId = data.msgId;
                 console.log("roomid: " + roomId);
                 console.log("timestamp: " , timeStamp);
                 console.log("userId: ", userId);
@@ -45,6 +46,7 @@ class MessageStore extends EventEmitter{
                    
                    const e = {
                        messageType: "text",
+                       msgId: msgId,
                        timeStamp: timeStamp,
                        userId: userId,
                        userName: userName,
@@ -59,29 +61,20 @@ class MessageStore extends EventEmitter{
                     const e = {
                         messageType: "text",
                        timeStamp: timeStamp,
+                       msgId: msgId,
                        userId: userId,
                        userName: userName,
                        messageLength: messageLength,
                        message: message
                     }
                     array.push(e);
+                    this.list.set(roomId, array);
                 }
                 this.emit("newTextMessage", roomId);
                 break;
             }
         }
         
-    }
-    actionHandler(action) {
-        const actionType = action.actionType;
-        switch(actionType) {
-            case ROOM_SELECTED: {
-                const roomId = action.roomId;
-                this.emit("changeSelectedRoom", roomId);
-                break;
-            }
-        }
-
     }
 }
 var messageStore = new MessageStore;

@@ -7,25 +7,47 @@
     z-index: 99999;
     background-color: #2C2E2F;
     border-radius: 4px;
+    padding: 0 15px;
+    margin-left: 0px;
 }
-
-.searchRoomContainer input {
+.searchRoomContainer .search-input{
+    border: none;
+    background-color: #3A3B3F !important;
+    color: #DDDDDD !important;
+    height: 30px;
+    font-size: 12px;
     margin-top: 15px;
-    margin-left: 15px;
-    border:none;
+}
+.searchRoomContainer .underline {
+    border-bottom: 1px solid #3A3B3F;
+}
+.searchRoomContainer .search-btn {
     height: 30px;
     font-size: 12px;
-    background-color:#3A3B3F !important;
+    margin-top: 15px;
+}
+.searchRoomContainer .result-container{
+    padding: 0 15px;
+    width: 100%;
+    overflow-y: scroll;
+}
+.searchRoomContainer .result-container .result {
+    border-bottom: 1px solid #3A3B3F ;
+    padding-bottom: 15px;
 
 }
-.searchRoomContainer .result {
-    border-top: 1px solid #3A3B3F;
-    height: 79px;
+.searchRoomContainer .result-container .result .resultList {
+    overflow: hidden;
     color: #dddddd;
-    margin-left: 15px;
+    white-space: pre-wrap;      /* CSS3 */   
+    white-space: -moz-pre-wrap; /* Firefox */    
+    white-space: -pre-wrap;     /* Opera <7 */   
+    white-space: -o-pre-wrap;   /* Opera 7 */    
+    word-wrap: break-word;      /* IE */
+    margin-top: 15px;
 }
-.searchRoomContainer button {
+.searchRoomContainer .result .result-btn {
     height: 30px;
     font-size: 12px;
-    margin: 15px;
+    margin-top: 15px;
 }
